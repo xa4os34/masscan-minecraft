@@ -1,6 +1,7 @@
 import sys
 import logging
 import pymongo
+from os import environ
 from mcstatus import JavaServer
 from socket import timeout
 
@@ -8,10 +9,9 @@ logging.basicConfig()
 logging.root.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-dbClient = pymongo.MongoClient("mongodb://root:3D^7RR@mongodb/")
+dbClient = pymongo.MongoClient(f"mongodb://{environ["MONGODB_USER"]}:{environ["MONGODB_PASSWORD"]}@{environ["MONGODB_IP"]}/")
 database = dbClient['minecraft-scanner']
 servers = database['servers']
-ipsToScan = database['ips-to-scan']
 
 
 def todict(obj, classkey=None):

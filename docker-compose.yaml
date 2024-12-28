@@ -2,6 +2,12 @@ services:
   scanner:
     container_name: minecraft-scanner
     build: ./
+    environment:
+      RATE_LIMIT: 16384
+      SCAN_NET: 0.0.0.0/0
+      MONGODB_USER: root
+      MONGODB_PASSWORD: 3D^7RR
+      MONGODB_IP: mongodb
 
   mongodb:
     container_name: mongodb
