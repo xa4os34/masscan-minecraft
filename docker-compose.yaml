@@ -1,0 +1,27 @@
+services:
+  scanner:
+    container_name: minecraft-scanner
+    build: ./
+
+  mongodb:
+    container_name: mongodb
+    image: mongo:7.0.16-jammy
+    restart: always
+    volumes:
+      - /opt/masscan-minecraft/db:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 3D^7RR
+
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express
+    restart: always
+    ports:
+      - 127.0.0.1:8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: 3D^7RR
+      ME_CONFIG_MONGODB_URL: mongodb://root:3D^7RR@mongodb/
+      ME_CONFIG_BASICAUTH: false
+
