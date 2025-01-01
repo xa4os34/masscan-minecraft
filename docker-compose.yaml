@@ -1,10 +1,12 @@
 services:
   scanner:
     container_name: minecraft-scanner
-    build: ./
+    build: .
+    volumes:
+      - ./config/:/app/config/
+    depends_on:
+      - mongodb
     environment:
-      RATE_LIMIT: 16384
-      SCAN_NET: 0.0.0.0/0
       MONGODB_USER: root
       MONGODB_PASSWORD: 3D^7RR
       MONGODB_IP: mongodb
@@ -13,7 +15,10 @@ services:
     container_name: mongodb
     image: mongo:7.0.16-jammy
     restart: always
+    ports:
+      - 127.0.0.1:27017:27017
     volumes:
+      - /tmp/sockets:/var/run/scanner.sock
       - /opt/masscan-minecraft/db:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
@@ -23,6 +28,8 @@ services:
     container_name: mongo-express
     image: mongo-express
     restart: always
+    depends_on:
+      - mongodb
     ports:
       - 127.0.0.1:8081:8081
     environment:

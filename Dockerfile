@@ -1,19 +1,31 @@
-FROM python:3.9-alpine
+FROM --platform=$BUILDPLATFORM alpine:3.21 AS build
 RUN mkdir -p /app
 WORKDIR /app
 
-RUN apk add masscan libpcap-dev coreutils
-RUN python3 -m pip install mcstatus pymongo
+ARG TARGETPLATFORM
+ARG TARGETARCH
 
-COPY scanner.py .
+RUN apk add dotnet8-sdk
+
+COPY scanner scanner-src
+
+RUN dotnet restore -v diag -a $TARGETARCH scanner-src/scanner.csproj --no-cache
+RUN dotnet publish -v diag -a $TARGETARCH --no-cache -c Release --sc false scanner-src/scanner.csproj -o .  
+
+RUN apk del dotnet8-sdk
+RUN rm -rf scanner-src
+
 COPY run.sh .
-RUN chmod +x run.sh
-COPY exclude.conf .
+COPY config config
+COPY config config
 
-ENV RATE_LIMIT=$RATE_LIMIT 
-ENV SCAN_NET=$SCAN_NET 
-ENV MONGODB_USER=$MONGODB_USER
-ENV MONGODB_PASSWORD=$MONGODB_PASSWORD 
-ENV MONGODB_IP=$MONGODB_IP 
+FROM alpine:3.21
+COPY --from=build /app /app
+VOLUME /app/config
+WORKDIR /app
+
+RUN apk add masscan libpcap-dev coreutils dotnet8-runtime netcat-openbsd
+
+RUN chmod +x run.sh
 
 ENTRYPOINT ./run.sh
