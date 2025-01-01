@@ -1,4 +1,11 @@
-masscan $SCAN_NET \
-    --excludefile=exclude.conf \
-    -p25565 --open --rate RATE_LIMIT 2>/dev/null | stdbuf -oL cut -d' ' -f6 | python -u scanner.py
+#!/usr/bin/env sh
 
+dotnet scanner.dll &
+
+sleep 1
+
+(masscan -c config/masscan.conf --excludefile config/exclude.conf \
+    | stdbuf -oL cut -d' ' -f6 \
+    | nc -U /var/run/scanner.sock) &
+
+wait
